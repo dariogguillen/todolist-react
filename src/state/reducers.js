@@ -44,6 +44,8 @@ const rootReducer = (state = initialState, action) => {
         tasks: state.tasks.map(task => {
           if (task.id === action.payload.id) {
             task.isPlaying = !action.payload.isPlaying
+            task.timeToShow = action.payload.timeToShow
+            task.executedAt = action.payload.executedAt
             return task
           }
           return task

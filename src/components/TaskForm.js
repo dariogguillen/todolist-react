@@ -98,28 +98,27 @@ class TaskForm extends Component {
 
   handleSubmit(e) {
     e.preventDefault()
-    if (this.state.timeInSeconds > 0) {
-      let { time, timeInSeconds } = this.state
-      const { task, type } = this.state
-      if (type === 'custom') {
-        time = getRemainTime(this.timeInSeconds).formatedTime
-        timeInSeconds = this.timeInSeconds
-      }
-      const info = {
-        id: uuidv1(),
-        task,
-        type,
-        time,
-        timeInSeconds,
-        createdAt: new Date().getTime(),
-        modifiedAt: null,
-        executedAt: null,
-        isComplete: false,
-        isPlaying: false
-      }
-      this.props.setInfoToState(info)
-      this.toggle()
+    let { time, timeInSeconds } = this.state
+    const { task, type } = this.state
+    if (type === 'custom') {
+      time = getRemainTime(this.timeInSeconds).formatedTime
+      timeInSeconds = this.timeInSeconds
     }
+    const info = {
+      id: uuidv1(),
+      task,
+      type,
+      time,
+      timeInSeconds,
+      timeToShow: time,
+      createdAt: new Date().getTime(),
+      modifiedAt: null,
+      executedAt: null,
+      isComplete: false,
+      isPlaying: false
+    }
+    this.props.setInfoToState(info)
+    this.toggle()
   }
 
   // hooks

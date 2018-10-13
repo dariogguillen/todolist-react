@@ -45,6 +45,7 @@ class TaskItem extends Component {
     this.state = {
       isEditable: false
     }
+    this.timerUpdater = null
 
     this.removeItem = this.removeItem.bind(this)
     this.modifyItem = this.modifyItem.bind(this)
@@ -96,37 +97,44 @@ class TaskItem extends Component {
     this.props.finishEdition(this.state)
   }
 
-  toggleCountdown = (stop = false) => () => {
+  toggleCountdown = stop => () => {
     this.setState({
       isPlaying: !this.state.isPlaying
     })
 
     const countdown = (deadline, stop) => {
-      const timerUpdater = setInterval(() => {
-        deadline--
-        let time = getRemainTime(deadline)
+      if (!stop) {
+        const executedAt = new Date().getTime()
+        this.timerUpdater = setInterval(() => {
+          deadline--
+          let time = getRemainTime(deadline)
+          this.setState({
+            timeToShow: time.formatedTime,
+            executedAt
+          })
 
-        this.setState({
-          timeToShow: time.formatedTime
-        })
-
-        if (time.remainTime < 1 || stop) {
-          clearInterval(timerUpdater)
-        }
-      }, 1000)
+          if (time.remainTime < 1) {
+            clearInterval(this.timerUpdater)
+            this.setState({
+              isPlaying: false
+            })
+          }
+        }, 1000)
+      } else {
+        clearInterval(this.timerUpdater)
+      }
+      this.props.toggleCountdown(this.state)
+      console.log(this.state);
     }
 
-    this.props.toggleCountdown(this.props.task)
 
     countdown(timeInSeconds(this.state.timeToShow), stop)
-    console.log(this.state);
   }
 
   // hooks
   componentWillMount() {
     this.setState({
-      ...this.props.task,
-      timeToShow: this.props.task.time
+      ...this.props.task
     })
   }
 
@@ -135,7 +143,8 @@ class TaskItem extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    console.log('should componente update');
+    console.log('should componente update')
+    // this.props.toggleCountdown(this.state)
     return nextProps.task.isPlaying === nextState.isPlaying
   }
 
@@ -203,7 +212,7 @@ class TaskItem extends Component {
                   variant="fab"
                   color="primary"
                   aria-label="Play"
-                  onClick={this.toggleCountdown()}
+                  onClick={this.toggleCountdown(true)}
                 >
                   <PauseIcon />
                 </Button>
@@ -213,7 +222,7 @@ class TaskItem extends Component {
                   variant="fab"
                   color="primary"
                   aria-label="Play"
-                  onClick={this.toggleCountdown(true)}
+                  onClick={this.toggleCountdown(false)}
                 >
                   <PlayArrowIcon />
                 </Button>

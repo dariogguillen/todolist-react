@@ -1,8 +1,8 @@
 export const getRemainTime = deadline => {
-  const remainTime = deadline ,
-    remainSeconds = ('0' + Math.floor(remainTime % 60)).slice(-2),
-    reaminMinutes = ('0' + Math.floor((remainTime / 60) % 60)).slice(-2),
-    remainHours = Math.floor(remainTime / (3600))
+  const remainTime = deadline
+  const remainSeconds = ('0' + Math.floor(remainTime % 60)).slice(-2)
+  const reaminMinutes = ('0' + Math.floor((remainTime / 60) % 60)).slice(-2)
+  const remainHours = Math.floor(remainTime / 3600)
 
   return {
     remainTime,
@@ -15,6 +15,6 @@ export const getRemainTime = deadline => {
 
 export const timeInSeconds = str => {
   const [hours, minutes, seconds] = str.split(':')
-  const totalSeconds = (hours * 3600) + (minutes * 60) + parseInt(seconds)
+  const totalSeconds = hours * 3600 + minutes * 60 + parseInt(seconds)
   return totalSeconds
 }
