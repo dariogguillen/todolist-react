@@ -48,6 +48,7 @@ class TaskItem extends Component {
       isEditable: false
     }
     this.timerUpdater = null
+    this.editionIsActive = false
 
     this.removeItem = this.removeItem.bind(this)
     this.modifyItem = this.modifyItem.bind(this)
@@ -90,13 +91,13 @@ class TaskItem extends Component {
   }
 
   modifyItem() {
-    this.setState({
-      isEditable: !this.state.isEditable
-    })
-    switch (this.state.isEditable) {
+    this.editionIsActive = !this.editionIsActive
+
+    switch (this.editionIsActive) {
       case true:
         console.log('active edition')
         this.setState({
+          isEditable: !this.state.isEditable,
           modifiedAt: new Date().getTime()
         })
         if (this.state.isPlaying) {
@@ -108,10 +109,12 @@ class TaskItem extends Component {
         break
       case false:
         console.log('edition finished')
-        this.props.finishEdition(this.state)
+        console.log(this.state);
         this.setState({
-          timeToShow: this.state.timeToShow
+          isEditable: !this.state.isEditable,
+          timeToShow: this.state.time
         })
+        this.props.finishEdition(this.state)
         break
 
       default:
