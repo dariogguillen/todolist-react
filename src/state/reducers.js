@@ -32,7 +32,7 @@ const rootReducer = (state = initialState, action) => {
           if (task.id === action.payload.id) {
             task.task = action.payload.task
             task.time = action.payload.time
-            task.timeToShow = action.payload.time
+            task.timeToShow = action.payload.timeToShow
             task.isComplete = action.payload.isComplete
             task.timeInSeconds = action.payload.timeInSeconds
             task.modifiedAt = action.payload.modifiedAt

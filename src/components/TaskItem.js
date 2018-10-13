@@ -82,7 +82,8 @@ class TaskItem extends Component {
   handleEditedTime(time) {
     this.setState({
       time,
-      timeInSeconds: timeInSeconds(time)
+      timeInSeconds: timeInSeconds(time),
+      timeToShow: time
     })
   }
 
@@ -100,20 +101,15 @@ class TaskItem extends Component {
           isEditable: !this.state.isEditable,
           modifiedAt: new Date().getTime()
         })
-        if (this.state.isPlaying) {
-          this.setState({
-            isPlaying: !this.state.isPlaying
-          })
-          this.toggleCountdown(!this.state.isPlaying)()
-        }
+        console.log(this.state);
         break
       case false:
         console.log('edition finished')
-        console.log(this.state);
         this.setState({
           isEditable: !this.state.isEditable,
-          timeToShow: this.state.time
+          // timeToShow: this.props.task.timeToShow
         })
+        console.log(this.state);
         this.props.finishEdition(this.state)
         break
 

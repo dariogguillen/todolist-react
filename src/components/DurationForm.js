@@ -6,7 +6,7 @@ import InputLabel from '@material-ui/core/InputLabel'
 import Input from '@material-ui/core/Input'
 
 // helpers
-import { timeInSeconds } from '../helpers';
+import { timeInSeconds, getRemainTime } from '../helpers'
 
 class DurationForm extends Component {
   constructor(props) {
@@ -56,10 +56,11 @@ class DurationForm extends Component {
         this.setTime()
         break
       case 'string':
-        const editedTime = `${this.hoursRef.current.value}:${
-          this.minutesRef.current.value
-        }:${this.secondsRef.current.value}`
-        this.props.editedTime(editedTime)
+        const editedTime =
+          this.hoursRef.current.value * 3600 +
+          this.minutesRef.current.value * 60 +
+          parseInt(this.secondsRef.current.value)
+        this.props.editedTime(getRemainTime(editedTime).formatedTime)
         break
 
       default:
