@@ -4,7 +4,9 @@ import {
   DELETE_ITEM,
   FINISH_EDITION,
   TOGGLE_COUNTDOWN,
-  EXECUTE
+  EXECUTE,
+  COMPLETED,
+  RESET
 } from './constants'
 
 const initialState = {
@@ -30,6 +32,7 @@ const rootReducer = (state = initialState, action) => {
           if (task.id === action.payload.id) {
             task.task = action.payload.task
             task.time = action.payload.time
+            task.timeToShow = action.payload.time
             task.isComplete = action.payload.isComplete
             task.timeInSeconds = action.payload.timeInSeconds
             task.modifiedAt = action.payload.modifiedAt
@@ -43,9 +46,8 @@ const rootReducer = (state = initialState, action) => {
         ...state,
         tasks: state.tasks.map(task => {
           if (task.id === action.payload.id) {
-            task.isPlaying = !action.payload.isPlaying
+            task.isPlaying = action.payload.isPlaying
             task.timeToShow = action.payload.timeToShow
-            task.executedAt = action.payload.executedAt
             return task
           }
           return task
@@ -57,6 +59,29 @@ const rootReducer = (state = initialState, action) => {
         tasks: state.tasks.map(task => {
           if (task.id === action.payload.id) {
             task.executedAt = action.payload.executedAt
+            return task
+          }
+          return task
+        })
+      }
+    case COMPLETED:
+      return {
+        ...state,
+        tasks: state.tasks.map(task => {
+          if (task.id === action.payload.id) {
+            task.isComplete = action.payload.isComplete
+            return task
+          }
+          return task
+        })
+      }
+    case RESET:
+      return {
+        ...state,
+        tasks: state.tasks.map(task => {
+          if (task.id === action.payload.id) {
+            task.isComplete = action.payload.isComplete
+            task.timeToShow = action.payload.timeToShow
             return task
           }
           return task

@@ -4,7 +4,9 @@ import {
   DELETE_ITEM,
   FINISH_EDITION,
   TOGGLE_COUNTDOWN,
-  EXECUTE
+  EXECUTE,
+  COMPLETED,
+  RESET
 } from './constants'
 
 export const toggleDialog = isOpen => ({
@@ -34,5 +36,15 @@ export const toggleCountdown = item => ({
 
 export const startExecutionAt = item => ({
   type: EXECUTE,
+  payload: item
+})
+
+export const completed = item => ({
+  type: COMPLETED,
+  payload: item
+})
+
+export const reset = item => ({
+  type: RESET,
   payload: item
 })

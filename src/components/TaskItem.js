@@ -25,7 +25,9 @@ import {
   deleteItem,
   editItem,
   toggleCountdown,
-  startExecutionAt
+  startExecutionAt,
+  completed,
+  reset
 } from '../state/actions'
 
 // helpers
@@ -51,17 +53,11 @@ class TaskItem extends Component {
     this.modifyItem = this.modifyItem.bind(this)
     this.finishEdition = this.finishEdition.bind(this)
     this.handleEditedTime = this.handleEditedTime.bind(this)
+    this.resetTime = this.resetTime.bind(this)
   }
 
   removeItem() {
     this.props.deleteItem(this.props.task)
-  }
-
-  modifyItem() {
-    this.setState({
-      isEditable: !this.state.isEditable,
-      modifiedAt: new Date().getTime()
-    })
   }
 
   handleChange = prop => e => {
@@ -93,42 +89,86 @@ class TaskItem extends Component {
     e.stopPropagation()
   }
 
+  modifyItem() {
+    this.setState({
+      isEditable: !this.state.isEditable,
+      modifiedAt: new Date().getTime()
+    })
+    if (this.state.isPlaying) {
+      this.setState({
+        isPlaying: !this.state.isPlaying
+      })
+      this.toggleCountdown(!this.state.isPlaying)()
+    }
+  }
+
   finishEdition() {
     this.props.finishEdition(this.state)
+    this.setState({
+      timeToShow: this.state.timeToShow
+    })
   }
 
   toggleCountdown = stop => () => {
-    this.setState({
-      isPlaying: !this.state.isPlaying
-    })
-
     const countdown = (deadline, stop) => {
+      const props = {
+        isPlaying: !this.state.isPlaying,
+        timeToShow: this.state.timeToShow,
+        id: this.state.id
+      }
       if (!stop) {
-        const executedAt = new Date().getTime()
+        this.props.startExecutionAt({
+          id: this.state.id,
+          executedAt: new Date().getTime()
+        })
         this.timerUpdater = setInterval(() => {
           deadline--
           let time = getRemainTime(deadline)
           this.setState({
             timeToShow: time.formatedTime,
-            executedAt
+            isPlaying: true
           })
 
           if (time.remainTime < 1) {
-            clearInterval(this.timerUpdater)
             this.setState({
-              isPlaying: false
+              isPlaying: false,
+              isComplete: true
             })
+            clearInterval(this.timerUpdater)
+            this.props.toggleCountdown({
+              isPlaying: this.state.isPlaying,
+              timeToShow: this.state.timeToShow,
+              id: this.state.id
+            })
+            this.props.completed(this.state)
           }
         }, 1000)
-      } else {
+      } else if (stop) {
+        this.setState({
+          isPlaying: false
+        })
+        this.props.toggleCountdown(props)
         clearInterval(this.timerUpdater)
       }
-      this.props.toggleCountdown(this.state)
-      console.log(this.state);
+      if (!this.state.isPlaying) {
+        this.props.toggleCountdown(props)
+      }
     }
 
-
     countdown(timeInSeconds(this.state.timeToShow), stop)
+  }
+
+  resetTime() {
+    console.log('reset')
+    this.setState({
+      timeToShow: this.props.task.time,
+      isComplete: false
+    })
+    this.props.reset({
+      id: this.state.id,
+      timeToShow: this.props.task.time,
+      isComplete: false
+    })
   }
 
   // hooks
@@ -136,16 +176,30 @@ class TaskItem extends Component {
     this.setState({
       ...this.props.task
     })
+
+    if (this.props.task.isPlaying) {
+      const restart = (initial, final) => {
+        initial = Math.floor(initial / 1000)
+        const now = Math.floor(new Date().getTime() / 1000)
+        if (now - initial < final) {
+          console.log(final - (now - initial))
+          this.setState({
+            timeToShow: getRemainTime(final - (now - initial)).formatedTime
+          })
+        }
+      }
+      restart(this.props.task.executedAt, this.props.task.timeInSeconds)
+    }
   }
 
   componentDidMount() {
-    console.log(this.state)
+    if (this.state.isPlaying) {
+      this.toggleCountdown(false)()
+    }
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    console.log('should componente update')
-    // this.props.toggleCountdown(this.state)
-    return nextProps.task.isPlaying === nextState.isPlaying
+  componentWillUnmount() {
+    this.toggleCountdown(true)()
   }
 
   render() {
@@ -176,11 +230,11 @@ class TaskItem extends Component {
             <Grid item xs={4}>
               {this.state.isEditable ? (
                 <DurationForm
-                  setTime={this.state.time}
+                  setTime={this.props.task.timeToShow}
                   editedTime={this.handleEditedTime}
                 />
               ) : (
-                <Typography>{this.state.timeToShow}</Typography>
+                <Typography>{this.props.task.timeToShow}</Typography>
               )}
             </Grid>
           </Grid>
@@ -230,6 +284,7 @@ class TaskItem extends Component {
             </Grid>
             <Grid item>
               <Button
+                onClick={this.resetTime}
                 disabled={this.state.isEditable}
                 variant="fab"
                 color="primary"
@@ -239,7 +294,12 @@ class TaskItem extends Component {
               </Button>
             </Grid>
             <Grid item>
-              <Button onClick={this.modifyItem} variant="fab" aria-label="Edit">
+              <Button
+                disabled={this.state.isPlaying}
+                onClick={this.modifyItem}
+                variant="fab"
+                aria-label="Edit"
+              >
                 {this.state.isEditable ? (
                   <DoneIcon onClick={this.finishEdition} />
                 ) : (
@@ -270,7 +330,9 @@ const mapDispatchToProps = dispatch => {
     deleteItem: item => dispatch(deleteItem(item)),
     finishEdition: item => dispatch(editItem(item)),
     toggleCountdown: item => dispatch(toggleCountdown(item)),
-    startExecutionAt: item => dispatch(startExecutionAt(item))
+    startExecutionAt: item => dispatch(startExecutionAt(item)),
+    completed: item => dispatch(completed(item)),
+    reset: item => dispatch(reset(item))
   }
 }
 
