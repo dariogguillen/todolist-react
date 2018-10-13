@@ -21,7 +21,12 @@ import Icon from '@material-ui/core/Icon'
 import DeleteIcon from '@material-ui/icons/Delete'
 
 // actions
-import { deleteItem, editItem, toggleCountdown, startExecutionAt } from '../state/actions'
+import {
+  deleteItem,
+  editItem,
+  toggleCountdown,
+  startExecutionAt
+} from '../state/actions'
 
 // helpers
 import { getRemainTime, timeInSeconds } from '../helpers'
@@ -91,34 +96,30 @@ class TaskItem extends Component {
     this.props.finishEdition(this.state)
   }
 
-  toggleCountdown = (stop) => () => {
+  toggleCountdown = (stop = false) => () => {
+    this.setState({
+      isPlaying: !this.state.isPlaying
+    })
 
-    const countdown = (deadline, stop = false) => {
+    const countdown = (deadline, stop) => {
       const timerUpdater = setInterval(() => {
         deadline--
         let time = getRemainTime(deadline)
-        const timeToShow = `${time.remainHours}:${time.reaminMinutes}:${
-          time.remainSeconds
-        }`
-  
+
         this.setState({
-          timeToShow
+          timeToShow: time.formatedTime
         })
-  
-  
+
         if (time.remainTime < 1 || stop) {
           clearInterval(timerUpdater)
         }
       }, 1000)
     }
 
-
-    this.setState({
-      isPlaying: !this.state.isPlaying
-    })
     this.props.toggleCountdown(this.props.task)
-    
-    countdown(timeInSeconds(this.state.timeToShow))
+
+    countdown(timeInSeconds(this.state.timeToShow), stop)
+    console.log(this.state);
   }
 
   // hooks
@@ -134,7 +135,7 @@ class TaskItem extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    // console.log('should componente update');
+    console.log('should componente update');
     return nextProps.task.isPlaying === nextState.isPlaying
   }
 
@@ -196,15 +197,27 @@ class TaskItem extends Component {
               />
             </Grid>
             <Grid item>
-              <Button
-                disabled={this.state.isEditable}
-                variant="fab"
-                color="primary"
-                aria-label="Play"
-                onClick={this.toggleCountdown}
-              >
-                {this.state.isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
-              </Button>
+              {this.state.isPlaying ? (
+                <Button
+                  disabled={this.state.isEditable}
+                  variant="fab"
+                  color="primary"
+                  aria-label="Play"
+                  onClick={this.toggleCountdown()}
+                >
+                  <PauseIcon />
+                </Button>
+              ) : (
+                <Button
+                  disabled={this.state.isEditable}
+                  variant="fab"
+                  color="primary"
+                  aria-label="Play"
+                  onClick={this.toggleCountdown(true)}
+                >
+                  <PlayArrowIcon />
+                </Button>
+              )}
             </Grid>
             <Grid item>
               <Button
