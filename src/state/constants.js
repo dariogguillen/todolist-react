@@ -1,0 +1,6 @@
+export const TOGGLE_DIALOG = 'TOGGLE_DIALOG'
+export const SET_INFO = 'SET_INFO'
+export const DELETE_ITEM = 'DELETE_ITEM'
+export const FINISH_EDITION = 'FINISH_EDITION'
+export const TOGGLE_COUNTDOWN = 'TOGGLE_COUNTDOWN'
+export const EXECUTE = 'EXECUTE'
