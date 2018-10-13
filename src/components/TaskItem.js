@@ -51,7 +51,7 @@ class TaskItem extends Component {
 
     this.removeItem = this.removeItem.bind(this)
     this.modifyItem = this.modifyItem.bind(this)
-    this.finishEdition = this.finishEdition.bind(this)
+    // this.finishEdition = this.finishEdition.bind(this)
     this.handleEditedTime = this.handleEditedTime.bind(this)
     this.resetTime = this.resetTime.bind(this)
   }
@@ -91,22 +91,32 @@ class TaskItem extends Component {
 
   modifyItem() {
     this.setState({
-      isEditable: !this.state.isEditable,
-      modifiedAt: new Date().getTime()
+      isEditable: !this.state.isEditable
     })
-    if (this.state.isPlaying) {
-      this.setState({
-        isPlaying: !this.state.isPlaying
-      })
-      this.toggleCountdown(!this.state.isPlaying)()
-    }
-  }
+    switch (this.state.isEditable) {
+      case true:
+        console.log('active edition')
+        this.setState({
+          modifiedAt: new Date().getTime()
+        })
+        if (this.state.isPlaying) {
+          this.setState({
+            isPlaying: !this.state.isPlaying
+          })
+          this.toggleCountdown(!this.state.isPlaying)()
+        }
+        break
+      case false:
+        console.log('edition finished')
+        this.props.finishEdition(this.state)
+        this.setState({
+          timeToShow: this.state.timeToShow
+        })
+        break
 
-  finishEdition() {
-    this.props.finishEdition(this.state)
-    this.setState({
-      timeToShow: this.state.timeToShow
-    })
+      default:
+        break
+    }
   }
 
   toggleCountdown = stop => () => {
@@ -230,11 +240,11 @@ class TaskItem extends Component {
             <Grid item xs={4}>
               {this.state.isEditable ? (
                 <DurationForm
-                  setTime={this.props.task.timeToShow}
+                  setTime={this.state.timeToShow}
                   editedTime={this.handleEditedTime}
                 />
               ) : (
-                <Typography>{this.props.task.timeToShow}</Typography>
+                <Typography>{this.state.timeToShow}</Typography>
               )}
             </Grid>
           </Grid>
@@ -285,7 +295,7 @@ class TaskItem extends Component {
             <Grid item>
               <Button
                 onClick={this.resetTime}
-                disabled={this.state.isEditable}
+                disabled={this.state.isEditable || this.state.isPlaying}
                 variant="fab"
                 color="primary"
                 aria-label="Replay"
@@ -300,11 +310,7 @@ class TaskItem extends Component {
                 variant="fab"
                 aria-label="Edit"
               >
-                {this.state.isEditable ? (
-                  <DoneIcon onClick={this.finishEdition} />
-                ) : (
-                  <Icon>edit_icon</Icon>
-                )}
+                {this.state.isEditable ? <DoneIcon /> : <Icon>edit_icon</Icon>}
               </Button>
             </Grid>
             <Grid item>
