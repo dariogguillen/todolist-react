@@ -77,7 +77,8 @@ class TaskItem extends Component {
         }
         this.props.completed({
           id: this.state.id,
-          isComplete: e.target.checked
+          isComplete: e.target.checked,
+          completedAt: new Date().getTime()
         })
         break
 
@@ -126,7 +127,7 @@ class TaskItem extends Component {
 
   toggleCountdown = (stop, toggleFromButton = true) => () => {
     const countdown = (deadline, stop) => {
-      const props = {
+      let props = {
         isPlaying: !this.state.isPlaying,
         timeToShow: this.state.timeToShow,
         id: this.state.id
@@ -149,7 +150,8 @@ class TaskItem extends Component {
           if (time.remainTime < 1) {
             this.setState({
               isPlaying: false,
-              isComplete: true
+              isComplete: true,
+              completedAt: new Date().getTime()
             })
             clearInterval(this.timerUpdater)
             this.props.toggleCountdown({
@@ -164,7 +166,14 @@ class TaskItem extends Component {
         this.setState({
           isPlaying: false
         })
-        this.props.toggleCountdown(props)
+        props = {
+          isPlaying: this.state.isPlaying,
+          timeToShow: this.state.timeToShow,
+          id: this.state.id
+        }
+        if (this.state.isPlaying) {
+          this.props.toggleCountdown(props)
+        }
         clearInterval(this.timerUpdater)
       }
       if (!this.state.isPlaying) {
@@ -190,8 +199,6 @@ class TaskItem extends Component {
 
   // hooks
   componentWillMount() {
-    // console.log(this.props.task.executedAt, this.props.task.timeInSeconds);
-    console.log(this.props);
     this.setState({
       ...this.props.task
     })
@@ -201,7 +208,6 @@ class TaskItem extends Component {
         initial = Math.floor(initial / 1000)
         const now = Math.floor(new Date().getTime() / 1000)
         if (now - initial < final) {
-          console.log(final - (now - initial))
           this.setState({
             timeToShow: getRemainTime(final - (now - initial)).formatedTime
           })
@@ -270,7 +276,6 @@ class TaskItem extends Component {
                   <Checkbox
                     checked={this.state.isComplete}
                     onChange={this.handleChange('isComplete')}
-                    // value={this.state.isComplete}
                     color="primary"
                   />
                 }

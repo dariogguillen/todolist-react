@@ -70,6 +70,7 @@ const rootReducer = (state = initialState, action) => {
         tasks: state.tasks.map(task => {
           if (task.id === action.payload.id) {
             task.isComplete = action.payload.isComplete
+            task.completedAt = action.payload.completedAt
             return task
           }
           return task
