@@ -21,45 +21,33 @@ import TaskItem from './TaskItem'
 class TaskContainer extends Component {
   // = ({ toggleDialog, open, tasks }) =>
 
-  // let visibles = 'todas'
   constructor(props) {
     super(props)
     this.state = {
       visibles: 'all'
     }
-
-    this.visibles = ''
   }
 
   toggle = () => {
     this.props.toggleDialog(!this.props.open)
   }
 
-  renderItem = (tasks, option = this.state.visibles) => {
+  renderItem = tasks => {
     return tasks.map(task => {
-      switch (option) {
-        case 'complete':
-          // console.log('mostrando completas')
-          // console.log(task)
-          return task.isComplete && <TaskItem task={task} key={task.id} />
-
-        case 'incomplete':
-          // console.log('mostrando incompletas')
-          return !task.isComplete && <TaskItem task={task} key={task.id} />
-
-        default:
-          return <TaskItem task={task} key={task.id} />
-      }
+      return (
+        <TaskItem
+          classprop={this.state.visibles}
+          task={task}
+          key={task.id}
+        />
+      )
     })
   }
 
   handleChange = e => {
-    // console.log(e.target.value);
-    this.visibles = e.target.value
     this.setState({
       visibles: e.target.value
     })
-    this.renderItem(this.props.tasks, this.visibles)
   }
 
   render() {

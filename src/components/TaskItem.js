@@ -6,7 +6,6 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
-// import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import Button from '@material-ui/core/Button'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import FormControl from '@material-ui/core/FormControl'
@@ -37,10 +36,6 @@ import { getRemainTime, timeInSeconds } from '../helpers'
 import DurationForm from './DurationForm'
 
 class TaskItem extends Component {
-  /* 
-  * this.prop.task is a father prop
-  * deleteItem, editItem, toggleCountdown are state props
-  */
   constructor(props) {
     super(props)
 
@@ -50,9 +45,10 @@ class TaskItem extends Component {
     this.timerUpdater = null
     this.editionIsActive = false
 
+    this.hidden = false
+
     this.removeItem = this.removeItem.bind(this)
     this.modifyItem = this.modifyItem.bind(this)
-    // this.finishEdition = this.finishEdition.bind(this)
     this.handleEditedTime = this.handleEditedTime.bind(this)
     this.resetTime = this.resetTime.bind(this)
   }
@@ -109,14 +105,14 @@ class TaskItem extends Component {
           isEditable: !this.state.isEditable,
           modifiedAt: new Date().getTime()
         })
-        console.log(this.state);
+        console.log(this.state)
         break
       case false:
         console.log('edition finished')
         this.setState({
-          isEditable: !this.state.isEditable,
+          isEditable: !this.state.isEditable
         })
-        console.log(this.state);
+        console.log(this.state)
         this.props.finishEdition(this.state)
         break
 
@@ -200,7 +196,8 @@ class TaskItem extends Component {
   // hooks
   componentWillMount() {
     this.setState({
-      ...this.props.task
+      ...this.props.task,
+      elementsToShow: this.props.classprop
     })
 
     if (this.props.task.isPlaying) {
@@ -218,8 +215,44 @@ class TaskItem extends Component {
   }
 
   componentDidMount() {
+    console.log(this.state)
     if (this.state.isPlaying) {
       this.toggleCountdown(false, false)()
+    }
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    // if (nextProps.classprop !== this.props.classprop) {
+    // }
+    return true
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    if (nextProps.classprop !== this.props.classprop) {
+      console.log('component will update')
+      switch (nextProps.classprop) {
+        case 'complete':
+          console.log(this.state.isComplete)
+          if (this.state.isComplete) {
+            this.hidden = false
+          } else {
+            this.hidden = true
+          }
+          break
+
+        case 'incomplete':
+          console.log(this.state.isComplete)
+          if (this.state.isComplete) {
+            this.hidden = true
+          } else {
+            this.hidden = false
+          }
+          break
+
+        default:
+          this.hidden = false
+          break
+      }
     }
   }
 
@@ -229,8 +262,8 @@ class TaskItem extends Component {
 
   render() {
     return (
-      <ExpansionPanel expanded>
-        <ExpansionPanelSummary >
+      <ExpansionPanel className={this.hidden ? 'hidden' : ''} expanded>
+        <ExpansionPanelSummary>
           <Grid container spacing={24} justify="space-between">
             <Grid item xs={4}>
               {this.state.isEditable ? (
@@ -285,7 +318,9 @@ class TaskItem extends Component {
             <Grid item>
               {this.state.isPlaying ? (
                 <Button
-                  disabled={this.state.isEditable || this.state.timeToShow === '0:00:00'}
+                  disabled={
+                    this.state.isEditable || this.state.timeToShow === '0:00:00'
+                  }
                   variant="fab"
                   color="primary"
                   aria-label="Play"
