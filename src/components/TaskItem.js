@@ -72,6 +72,13 @@ class TaskItem extends Component {
         this.setState({
           [prop]: e.target.checked
         })
+        if (e.target.checked) {
+          this.toggleCountdown(true)()
+        }
+        this.props.completed({
+          id: this.state.id,
+          isComplete: e.target.checked
+        })
         break
 
       default:
@@ -107,7 +114,6 @@ class TaskItem extends Component {
         console.log('edition finished')
         this.setState({
           isEditable: !this.state.isEditable,
-          // timeToShow: this.props.task.timeToShow
         })
         console.log(this.state);
         this.props.finishEdition(this.state)
@@ -281,7 +287,7 @@ class TaskItem extends Component {
                 </Button>
               ) : (
                 <Button
-                  disabled={this.state.isEditable}
+                  disabled={this.state.isEditable || this.state.isComplete}
                   variant="fab"
                   color="primary"
                   aria-label="Play"
