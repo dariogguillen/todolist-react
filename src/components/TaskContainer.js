@@ -50,6 +50,9 @@ class TaskContainer extends Component {
     })
   }
 
+  componentWillMount() {
+    this.props.toggleDialog(false)
+  }
   render() {
     return (
       <div className="content">

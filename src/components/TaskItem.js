@@ -46,11 +46,16 @@ class TaskItem extends Component {
     this.editionIsActive = false
 
     this.hidden = false
+    this.isComplete = false
+    this.itemsToShow = 'all'
+
+    this.checkRef = React.createRef()
 
     this.removeItem = this.removeItem.bind(this)
     this.modifyItem = this.modifyItem.bind(this)
     this.handleEditedTime = this.handleEditedTime.bind(this)
     this.resetTime = this.resetTime.bind(this)
+    this.filter = this.filter.bind(this)
   }
 
   removeItem() {
@@ -65,15 +70,16 @@ class TaskItem extends Component {
         })
         break
       case 'isComplete':
+      console.log(this.checkRef.current.checked);
         this.setState({
-          [prop]: e.target.checked
+          [prop]: this.checkRef.current.checked
         })
-        if (e.target.checked) {
+        if (this.checkRef.current.checked) {
           this.toggleCountdown(true)()
         }
         this.props.completed({
           id: this.state.id,
-          isComplete: e.target.checked,
+          isComplete: this.checkRef.current.checked,
           completedAt: new Date().getTime()
         })
         break
@@ -144,18 +150,24 @@ class TaskItem extends Component {
           })
 
           if (time.remainTime < 1) {
+            this.isComplete = true
+            clearInterval(this.timerUpdater)
+            const completedAt = new Date().getTime()
             this.setState({
               isPlaying: false,
               isComplete: true,
-              completedAt: new Date().getTime()
+              completedAt
             })
-            clearInterval(this.timerUpdater)
+            this.props.completed({
+              isComplete: true,
+              completedAt,
+              id: this.state.id
+            })
             this.props.toggleCountdown({
               isPlaying: this.state.isPlaying,
               timeToShow: this.state.timeToShow,
               id: this.state.id
             })
-            this.props.completed(this.state)
           }
         }, 1000)
       } else if (stop) {
@@ -181,7 +193,7 @@ class TaskItem extends Component {
   }
 
   resetTime() {
-    console.log('reset')
+    this.isComplete = false
     this.setState({
       timeToShow: this.props.task.time,
       isComplete: false
@@ -196,9 +208,9 @@ class TaskItem extends Component {
   // hooks
   componentWillMount() {
     this.setState({
-      ...this.props.task,
-      elementsToShow: this.props.classprop
+      ...this.props.task
     })
+    this.isComplete = this.props.task.isComplete
 
     if (this.props.task.isPlaying) {
       const restart = (initial, final) => {
@@ -215,45 +227,46 @@ class TaskItem extends Component {
   }
 
   componentDidMount() {
-    console.log(this.state)
     if (this.state.isPlaying) {
       this.toggleCountdown(false, false)()
     }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    // if (nextProps.classprop !== this.props.classprop) {
-    // }
+    this.itemsToShow = nextProps.classprop
     return true
   }
 
-  componentWillUpdate(nextProps, nextState) {
-    if (nextProps.classprop !== this.props.classprop) {
-      console.log('component will update')
-      switch (nextProps.classprop) {
-        case 'complete':
-          console.log(this.state.isComplete)
-          if (this.state.isComplete) {
-            this.hidden = false
-          } else {
-            this.hidden = true
-          }
-          break
+  filter(prop = this.itemsToShow) {
+    switch (prop) {
+      case 'all':
+        this.hidden = false
+        break
 
-        case 'incomplete':
-          console.log(this.state.isComplete)
-          if (this.state.isComplete) {
-            this.hidden = true
-          } else {
-            this.hidden = false
-          }
-          break
-
-        default:
+      case 'complete':
+        if (this.isComplete) {
           this.hidden = false
-          break
-      }
+        } else {
+          this.hidden = true
+        }
+        break
+
+      case 'incomplete':
+        if (!this.isComplete) {
+          this.hidden = false
+        } else {
+          this.hidden = true
+        }
+        break
+
+      default:
+        this.hidden = false
+        break
     }
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    this.filter(nextProps.classprop)
   }
 
   componentWillUnmount() {
@@ -307,6 +320,7 @@ class TaskItem extends Component {
               <FormControlLabel
                 control={
                   <Checkbox
+                    inputRef={this.checkRef}
                     checked={this.state.isComplete}
                     onChange={this.handleChange('isComplete')}
                     color="primary"
