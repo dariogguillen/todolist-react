@@ -6,7 +6,7 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+// import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import Button from '@material-ui/core/Button'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import FormControl from '@material-ui/core/FormControl'
@@ -124,7 +124,7 @@ class TaskItem extends Component {
     }
   }
 
-  toggleCountdown = stop => () => {
+  toggleCountdown = (stop, toggleFromButton = true) => () => {
     const countdown = (deadline, stop) => {
       const props = {
         isPlaying: !this.state.isPlaying,
@@ -132,10 +132,12 @@ class TaskItem extends Component {
         id: this.state.id
       }
       if (!stop) {
-        this.props.startExecutionAt({
-          id: this.state.id,
-          executedAt: new Date().getTime()
-        })
+        if (toggleFromButton) {
+          this.props.startExecutionAt({
+            id: this.state.id,
+            executedAt: new Date().getTime()
+          })
+        }
         this.timerUpdater = setInterval(() => {
           deadline--
           let time = getRemainTime(deadline)
@@ -188,6 +190,8 @@ class TaskItem extends Component {
 
   // hooks
   componentWillMount() {
+    // console.log(this.props.task.executedAt, this.props.task.timeInSeconds);
+    console.log(this.props);
     this.setState({
       ...this.props.task
     })
@@ -209,7 +213,7 @@ class TaskItem extends Component {
 
   componentDidMount() {
     if (this.state.isPlaying) {
-      this.toggleCountdown(false)()
+      this.toggleCountdown(false, false)()
     }
   }
 
@@ -218,10 +222,9 @@ class TaskItem extends Component {
   }
 
   render() {
-    const { task } = this.props
     return (
-      <ExpansionPanel>
-        <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+      <ExpansionPanel expanded>
+        <ExpansionPanelSummary >
           <Grid container spacing={24} justify="space-between">
             <Grid item xs={4}>
               {this.state.isEditable ? (
@@ -239,7 +242,7 @@ class TaskItem extends Component {
                   />
                 </FormControl>
               ) : (
-                <Typography>{task.task}</Typography>
+                <Typography>{this.props.task.task}</Typography>
               )}
             </Grid>
             <Grid item xs={4}>
@@ -277,7 +280,7 @@ class TaskItem extends Component {
             <Grid item>
               {this.state.isPlaying ? (
                 <Button
-                  disabled={this.state.isEditable}
+                  disabled={this.state.isEditable || this.state.timeToShow === '0:00:00'}
                   variant="fab"
                   color="primary"
                   aria-label="Play"
