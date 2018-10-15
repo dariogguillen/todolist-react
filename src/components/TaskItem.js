@@ -70,17 +70,19 @@ class TaskItem extends Component {
         })
         break
       case 'isComplete':
-      console.log(this.checkRef.current.checked);
-        this.setState({
-          [prop]: this.checkRef.current.checked
-        })
+      let completedAt = ''
         if (this.checkRef.current.checked) {
+          completedAt =  new Date().getTime()
           this.toggleCountdown(true)()
         }
+        this.setState({
+          [prop]: this.checkRef.current.checked,
+          completedAt: completedAt || this.state.completedAt
+        })
         this.props.completed({
           id: this.state.id,
           isComplete: this.checkRef.current.checked,
-          completedAt: new Date().getTime()
+          completedAt: completedAt || this.state.completedAt
         })
         break
 
