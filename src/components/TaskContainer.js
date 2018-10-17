@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import AddIcon from '@material-ui/icons/Add'
 import Grid from '@material-ui/core/Grid'
@@ -15,6 +14,7 @@ import MenuItem from '@material-ui/core/MenuItem'
 import { toggleDialog } from '../state/actions'
 
 // components
+import Header from './shared/Header'
 import TaskForm from './TaskForm'
 import TaskItem from './TaskItem'
 
@@ -35,11 +35,7 @@ class TaskContainer extends Component {
   renderItem = tasks => {
     return tasks.map(task => {
       return (
-        <TaskItem
-          classprop={this.state.visibles}
-          task={task}
-          key={task.id}
-        />
+        <TaskItem classprop={this.state.visibles} task={task} key={task.id} />
       )
     })
   }
@@ -56,13 +52,10 @@ class TaskContainer extends Component {
   render() {
     return (
       <div className="content">
-        <Grid container spacing={24} justify="space-between">
-          <Grid item>
-            <Typography variant="h4" color="inherit">
-              Listado de Tareas
-            </Typography>
-          </Grid>
-          <Grid item>
+        <Header
+          title="Listado de tareas"
+          color="default"
+          addButton={
             <Button
               onClick={this.toggle}
               variant="fab"
@@ -71,7 +64,9 @@ class TaskContainer extends Component {
             >
               <AddIcon />
             </Button>
-          </Grid>
+          }
+        />
+        <Grid container spacing={24} justify="space-between">
           <Grid item xs={12} container justify="flex-end">
             <Grid item xs={3}>
               <FormControl fullWidth>
