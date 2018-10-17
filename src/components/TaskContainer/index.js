@@ -13,7 +13,7 @@ import { toggleDialog } from '../../state/actions'
 // components
 import Header from '../shared/Header'
 import TaskForm from '../TaskForm'
-import TaskItem from '../TaskItem'
+import TaskItem from './TaskItem'
 import OptionSelect from './OptionSelect'
 
 class TaskContainer extends Component {
