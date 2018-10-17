@@ -1,26 +1,22 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
+// material-ui
 import Button from '@material-ui/core/Button'
 import AddIcon from '@material-ui/icons/Add'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
-import FormControl from '@material-ui/core/FormControl'
-import InputLabel from '@material-ui/core/InputLabel'
-import Select from '@material-ui/core/Select'
-import MenuItem from '@material-ui/core/MenuItem'
 
 // actions
-import { toggleDialog } from '../state/actions'
+import { toggleDialog } from '../../state/actions'
 
 // components
-import Header from './shared/Header'
-import TaskForm from './TaskForm'
-import TaskItem from './TaskItem'
+import Header from '../shared/Header'
+import TaskForm from '../TaskForm'
+import TaskItem from '../TaskItem'
+import OptionSelect from './OptionSelect'
 
 class TaskContainer extends Component {
-  // = ({ toggleDialog, open, tasks }) =>
-
   constructor(props) {
     super(props)
     this.state = {
@@ -69,21 +65,10 @@ class TaskContainer extends Component {
         <Grid container spacing={24} justify="space-between">
           <Grid item xs={12} container justify="flex-end">
             <Grid item xs={3}>
-              <FormControl fullWidth>
-                <InputLabel htmlFor="select">Mostrando</InputLabel>
-                <Select
-                  value={this.state.visibles}
-                  onChange={this.handleChange}
-                  inputProps={{
-                    name: 'select',
-                    id: 'select'
-                  }}
-                >
-                  <MenuItem value={'all'}>Todas</MenuItem>
-                  <MenuItem value={'complete'}>Completadas</MenuItem>
-                  <MenuItem value={'incomplete'}>Incompletas</MenuItem>
-                </Select>
-              </FormControl>
+              <OptionSelect
+                visibles={this.state.visibles}
+                onChangeOption={this.handleChange}
+              />
             </Grid>
           </Grid>
           <Grid item xs={12}>
